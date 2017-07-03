@@ -17,15 +17,26 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var bg = SKSpriteNode()
     
+    var edge = SKSpriteNode()
+    
     var lastUpdateTime: TimeInterval = 0
     
     var score = 0
     
+    var jumpCount = 0
+    
     var gameOver = false
+    
+    var gameOverLabel = SKLabelNode()
+    
+    var scoreLabel = SKLabelNode()
     
     enum ColliderType: UInt32 {
         
-        case Object = 1
+        case Peanut = 1
+        case Baddie = 2
+        case Object = 4
+        case Edge = 31
         
     }
     
@@ -38,6 +49,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func setupGame() {
+        
+        lastUpdateTime = 0
+        
+        // SETTING UP BACKGROUND
         
         let bgTexture = SKTexture(imageNamed: "bg.png")
         
@@ -65,7 +80,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
         }
         
-        // SETTING UP THE CAT
+        // SET UP THE CAT
         
         let peanutTexture = SKTexture(imageNamed: "peanutWalk1.png")
         let peanutTexture2 = SKTexture(imageNamed: "peanutWalk2.png")
@@ -84,13 +99,14 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         peanut.physicsBody!.isDynamic = true
         peanut.physicsBody!.allowsRotation = false
         
-        peanut.physicsBody!.contactTestBitMask = ColliderType.Object.rawValue
-        peanut.physicsBody!.categoryBitMask = ColliderType.Object.rawValue
+        peanut.physicsBody!.categoryBitMask = ColliderType.Peanut.rawValue
         peanut.physicsBody!.collisionBitMask = ColliderType.Object.rawValue
+        peanut.physicsBody!.contactTestBitMask = ColliderType.Object.rawValue
+        peanut.physicsBody!.contactTestBitMask = ColliderType.Baddie.rawValue
         
         self.addChild(peanut)
         
-        // SETTING UP THE FLOOR
+        // SET UP THE FLOOR
         
         let floorTexture = SKTexture(imageNamed: "wood.png")
         
@@ -101,20 +117,48 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         floor.physicsBody!.isDynamic = false
         
-        floor.physicsBody!.contactTestBitMask = ColliderType.Object.rawValue
         floor.physicsBody!.categoryBitMask = ColliderType.Object.rawValue
         floor.physicsBody!.collisionBitMask = ColliderType.Object.rawValue
-        
+        floor.physicsBody!.contactTestBitMask = ColliderType.Peanut.rawValue
+                
         floor.position = CGPoint(x: self.frame.midX, y: -550)
         
         self.addChild(floor)
+        
+        // SET UP THE SCORE
+        
+        scoreLabel.fontName = "Helvetica"
+        
+        scoreLabel.fontSize = 60
+        
+        scoreLabel.text = "0"
+        
+        scoreLabel.position = CGPoint(x: self.frame.midX, y: self.frame.height / 2 - 70)
+        
+        self.addChild(scoreLabel)
+        
+        // SET UP THE EDGE
+        
+        edge.alpha = 0
+        
+        edge.physicsBody = SKPhysicsBody(rectangleOf: CGSize(width: 2,
+                                                              height: self.size.height))
+        
+        edge.physicsBody!.isDynamic = false
+        
+        edge.physicsBody!.categoryBitMask = ColliderType.Edge.rawValue
+        edge.physicsBody!.collisionBitMask = ColliderType.Baddie.rawValue
+        
+        edge.position = CGPoint(x: -435, y: self.frame.midY)
+        
+        self.addChild(edge)
         
         // SPAWN BADDIES INFINITELY
         
         let wait = SKAction.wait(forDuration: 3, withRange: 2)
         
         let spawn = SKAction.run {
-            self.makeBaddie(at: CGPoint(x: 300, y: -330))
+            self.makeBaddie(at: CGPoint(x: 400, y: -330))
         }
         
         let sequence = SKAction.sequence([wait, spawn])
@@ -135,9 +179,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         baddie.physicsBody!.isDynamic = true
         baddie.physicsBody!.allowsRotation = false
         
-        baddie.physicsBody!.contactTestBitMask = ColliderType.Object.rawValue
         baddie.physicsBody!.categoryBitMask = ColliderType.Object.rawValue
+        baddie.physicsBody!.categoryBitMask = ColliderType.Baddie.rawValue
         baddie.physicsBody!.collisionBitMask = ColliderType.Object.rawValue
+        baddie.physicsBody!.contactTestBitMask = ColliderType.Peanut.rawValue
         
         baddie.position = position
         addChild(baddie)
@@ -146,8 +191,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         let moveLeft = SKAction.moveBy(x: -800, y:0, duration:6.0)
         baddie.run(moveLeft)
-        
-        // need to remove baddies once they move off the screen.
+    
     }
     
     func didBegin(_ contact: SKPhysicsContact) {
@@ -163,19 +207,20 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             secondBody = contact.bodyA
         }
         
-        print("*******")
-        print(firstBody)
-        print("*******")
-        print(secondBody)
-        
-        /*
-        if gameOver == false {
-            
+        if (firstBody.categoryBitMask == 2 && secondBody.categoryBitMask == 31) {
+            // if baddie hit left wall
+            contact.bodyB.node?.removeFromParent()
+            score += 1
+            scoreLabel.text = String(score)
+        } else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 4) {
+            // if peanut hit the floor
+            jumpCount = 0
+            print("jumpCount reset")
+        }
+        else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 2) {
             self.speed = 0
             
             gameOver = true
-            
-            timer.invalidate()
             
             gameOverLabel.fontName = "Helvetica"
             
@@ -186,8 +231,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             gameOverLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY)
             
             self.addChild(gameOverLabel)
-            
-        } -- modify this code to end the game when peanut hits a baddie */
+        }
         
     }
     
@@ -203,7 +247,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
-        if gameOver == false {
+        
+        if gameOver == false && jumpCount < 3 {
             
             peanut.physicsBody!.isDynamic = true
             
@@ -211,7 +256,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             peanut.physicsBody!.applyImpulse(CGVector(dx: 0, dy: 65))
             
-        } else {
+            jumpCount += 1
+            
+        } else if gameOver == true {
             
             // this is where tapping restarts the game
             
@@ -243,14 +290,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     override func update(_ currentTime: TimeInterval) {
         // Called before each frame is rendered
 
-        /*
-        var i = 0
-        
-        if i % 50000 == 0 {
-            print("makeBaddie")
-            makeBaddie(at: CGPoint(x: 300, y: -300))
-        }
-        
-        i += 1  */
     }
 }
