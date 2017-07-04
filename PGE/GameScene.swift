@@ -23,11 +23,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var score = 0
     
+    var highScore = 0
+    
     var jumpCount = 0
     
     var gameOver = false
     
     var gameOverLabel = SKLabelNode()
+    
+    var highScoreLabel = SKLabelNode()
     
     var scoreLabel = SKLabelNode()
     
@@ -127,6 +131,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // SET UP THE SCORE
         
+        highScore = UserDefaults.standard.integer(forKey: "HIGHSCORE")
+        
         scoreLabel.fontName = "Helvetica"
         
         scoreLabel.fontSize = 60
@@ -155,7 +161,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         // SPAWN BADDIES INFINITELY
         
-        let wait = SKAction.wait(forDuration: 3, withRange: 2)
+        let wait = SKAction.wait(forDuration: 3, withRange: 3)
         
         let spawn = SKAction.run {
             self.makeBaddie(at: CGPoint(x: 400, y: -330))
@@ -215,37 +221,50 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 4) {
             // if peanut hit the floor
             jumpCount = 0
-            print("jumpCount reset")
         }
         else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 2) {
+            // if peanut hit a baddie
             self.speed = 0
             
             gameOver = true
             
+            // set high score
+            
             gameOverLabel.fontName = "Helvetica"
+            highScoreLabel.fontName = "Helvetica"
             
             gameOverLabel.fontSize = 30
+            highScoreLabel.fontSize = 30
             
             gameOverLabel.text = "Game Over! Tap to play again."
             
-            gameOverLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY)
+            if score > highScore {
+                saveHighScore()
+                
+                highScoreLabel.text = "You set the high score! New high score is \(score)."
+                
+                gameOverLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY)
+                highScoreLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY - 35)
+                
             
+            } else {
+            
+            highScoreLabel.text = "High score is \(highScore). Try harder, loser!"
+            
+            gameOverLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY)
+            highScoreLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY - 35)
+            
+            }
             self.addChild(gameOverLabel)
+            self.addChild(highScoreLabel)
         }
         
     }
     
-    func touchDown(atPoint pos : CGPoint) {
+    func saveHighScore() {
+        UserDefaults.standard.set(score, forKey: "HIGHSCORE")
     }
-    
-    func touchMoved(toPoint pos : CGPoint) {
 
-    }
-    
-    func touchUp(atPoint pos : CGPoint) {
-
-    }
-    
     override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
         
         if gameOver == false && jumpCount < 3 {
@@ -271,6 +290,19 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             setupGame()
             
         }
+        
+    }
+    
+    // I THINK EVERYTHING BELOW HERE IS TRASHABLE?    
+    
+    func touchDown(atPoint pos : CGPoint) {
+    }
+    
+    func touchMoved(toPoint pos : CGPoint) {
+        
+    }
+    
+    func touchUp(atPoint pos : CGPoint) {
         
     }
     
