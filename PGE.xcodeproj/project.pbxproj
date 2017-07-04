@@ -7,6 +7,8 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		8A23EEA81F0C32EE00979398 /* Dialogue.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A23EEA71F0C32EE00979398 /* Dialogue.swift */; };
+		8A23EEAA1F0C51B800979398 /* peanutSpeaking.png in Resources */ = {isa = PBXBuildFile; fileRef = 8A23EEA91F0C51B800979398 /* peanutSpeaking.png */; };
 		8A294E771F0942C900821E6C /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 8A294E761F0942C900821E6C /* AppDelegate.swift */; };
 		8A294E791F0942C900821E6C /* GameScene.sks in Resources */ = {isa = PBXBuildFile; fileRef = 8A294E781F0942C900821E6C /* GameScene.sks */; };
 		8A294E7B1F0942C900821E6C /* Actions.sks in Resources */ = {isa = PBXBuildFile; fileRef = 8A294E7A1F0942C900821E6C /* Actions.sks */; };
@@ -41,6 +43,8 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		8A23EEA71F0C32EE00979398 /* Dialogue.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = Dialogue.swift; sourceTree = "<group>"; };
+		8A23EEA91F0C51B800979398 /* peanutSpeaking.png */ = {isa = PBXFileReference; lastKnownFileType = image.png; path = peanutSpeaking.png; sourceTree = "<group>"; };
 		8A294E731F0942C900821E6C /* PGE.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PGE.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		8A294E761F0942C900821E6C /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		8A294E781F0942C900821E6C /* GameScene.sks */ = {isa = PBXFileReference; lastKnownFileType = file.sks; path = GameScene.sks; sourceTree = "<group>"; };
@@ -111,12 +115,14 @@
 				8A294E781F0942C900821E6C /* GameScene.sks */,
 				8A294E7A1F0942C900821E6C /* Actions.sks */,
 				8A294E7C1F0942C900821E6C /* GameScene.swift */,
+				8A23EEA71F0C32EE00979398 /* Dialogue.swift */,
 				8A294E7E1F0942C900821E6C /* GameViewController.swift */,
 				8A294E801F0942C900821E6C /* Main.storyboard */,
 				8A294EB61F09588000821E6C /* vacuumBaddie.png */,
 				8A294EAB1F0943FC00821E6C /* peanutSitting.png */,
 				8A294EAC1F0943FC00821E6C /* peanutWalk1.png */,
 				8A294EAA1F0943FC00821E6C /* peanutWalk2.png */,
+				8A23EEA91F0C51B800979398 /* peanutSpeaking.png */,
 				8A294EAD1F0943FC00821E6C /* wood.png */,
 				8A294EAE1F0943FC00821E6C /* bg.png */,
 				8A294E831F0942C900821E6C /* Assets.xcassets */,
@@ -236,6 +242,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				8A23EEAA1F0C51B800979398 /* peanutSpeaking.png in Resources */,
 				8A294EB31F0943FC00821E6C /* bg.png in Resources */,
 				8A294EAF1F0943FC00821E6C /* peanutWalk2.png in Resources */,
 				8A294E821F0942C900821E6C /* Main.storyboard in Resources */,
@@ -274,6 +281,7 @@
 				8A294E7D1F0942C900821E6C /* GameScene.swift in Sources */,
 				8A294E7F1F0942C900821E6C /* GameViewController.swift in Sources */,
 				8A294E771F0942C900821E6C /* AppDelegate.swift in Sources */,
+				8A23EEA81F0C32EE00979398 /* Dialogue.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -522,6 +530,7 @@
 				8A294EA31F0942C900821E6C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8A294EA41F0942C900821E6C /* Build configuration list for PBXNativeTarget "PGETests" */ = {
 			isa = XCConfigurationList;
@@ -530,6 +539,7 @@
 				8A294EA61F0942C900821E6C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		8A294EA71F0942C900821E6C /* Build configuration list for PBXNativeTarget "PGEUITests" */ = {
 			isa = XCConfigurationList;
@@ -538,6 +548,7 @@
 				8A294EA91F0942C900821E6C /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 	};
