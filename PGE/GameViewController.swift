@@ -16,6 +16,7 @@ class GameViewController: UIViewController {
         super.viewDidLoad()
         
         UserDefaults.standard.set(true, forKey: "NEEDSSTORY")
+        UserDefaults.standard.set(0, forKey: "STORYPROGRESS")
         
         if let view = self.view as! SKView? {
             // Load the SKScene from 'GameScene.sks'

@@ -46,11 +46,16 @@ class Dialogue: SKScene, SKPhysicsContactDelegate {
         line5.fontName = "Helvetica"
         line5.fontSize = 35
         
+        storyProgress = UserDefaults.standard.integer(forKey: "STORYPROGRESS")
+        
         if storyProgress == 0 {
             line3.text = "this place sux, im outta here"
             storyProgress += 1
+            UserDefaults.standard.set(storyProgress, forKey: "STORYPROGRESS")
         } else if storyProgress == 1 {
-            
+            line2.text = "wow, that wuz scary"
+            line3.text = "at least im free now!"
+            UserDefaults.standard.set(storyProgress, forKey: "STORYPROGRESS")
         } else if storyProgress == 2 {
             
         } else if storyProgress == 3 {
@@ -98,6 +103,7 @@ class Dialogue: SKScene, SKPhysicsContactDelegate {
         // NEED TO PERMANENTLY REMEMBER storyProgress here?
         
         sendToGame()
+        storyProgress += 1
         
         }
 
@@ -110,16 +116,6 @@ class Dialogue: SKScene, SKPhysicsContactDelegate {
         SceneMove.scaleMode = SKSceneScaleMode.aspectFill
         self.scene!.view!.presentScene(SceneMove)
         
-        /*
- 
-        let transition = SKTransition.reveal(with: .down, duration: 0.5)
-        
-        let nextScene = GameScene(size: scene!.size)
-        nextScene.scaleMode = .aspectFill
-        
-        scene?.view?.presentScene(nextScene, transition: transition)
-
-        */
         
     }
 

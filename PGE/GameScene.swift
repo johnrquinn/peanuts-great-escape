@@ -46,6 +46,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         case Peanut = 1
         case Baddie = 2
         case Object = 4
+        case Exit = 8
         case Goal = 30
         case Edge = 31
         
@@ -74,7 +75,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         lastUpdateTime = 0
         
-        score = 15
+        score = 0
         
         // SET UP THE BACKGROUND
         
@@ -127,6 +128,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         peanut.physicsBody!.collisionBitMask = ColliderType.Object.rawValue
         peanut.physicsBody!.contactTestBitMask = ColliderType.Object.rawValue
         peanut.physicsBody!.contactTestBitMask = ColliderType.Baddie.rawValue
+        peanut.physicsBody!.contactTestBitMask = ColliderType.Exit.rawValue
         
         self.addChild(peanut)
         
@@ -229,28 +231,32 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         baddie.position = position
         addChild(baddie)
-        
-        // MOVE BADDIES LEFT
-    
+       
         baddie.run(moveLeft)
     
     }
     
     func makeExit(at position: CGPoint) {
         
-        // THIS SEEMS TO SPAWN AN INVISIBLE EXIT... KNOWN BUG
+        // THIS SEEMS TO SPAWN AN INVISIBLE EXIT... KNOWN BUG -- but this does work for detecting contact
         
         self.removeAllActions()
         
-        let levelExit = SKSpriteNode()
+        var levelExit = SKSpriteNode()
         
         let levelExitTexture = SKTexture(imageNamed: "exitDoor.png")
+        
+        levelExit = SKSpriteNode(texture: levelExitTexture)
         
         levelExit.physicsBody = SKPhysicsBody(circleOfRadius: levelExitTexture.size().height / 2)
         
         levelExit.physicsBody!.isDynamic = true
         levelExit.physicsBody!.allowsRotation = false
         levelExit.physicsBody!.affectedByGravity = false
+        
+        levelExit.physicsBody!.categoryBitMask = ColliderType.Exit.rawValue
+        levelExit.physicsBody!.collisionBitMask = 0
+        levelExit.physicsBody!.contactTestBitMask = ColliderType.Peanut.rawValue
         
         levelExit.position = CGPoint(x: self.frame.midX + 400, y: self.frame.midY - 349)
         
@@ -277,7 +283,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             // if baddie hit goal
             score += 1
             scoreLabel.text = String("Score: \(score)")
-            if score >= 15 {
+            if score == 15 {
                 makeExit(at:CGPoint(x: self.frame.midX + 400, y: self.frame.midY - 349))
             }
             
@@ -287,6 +293,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 4) {
             // if peanut hit the floor
             jumpCount = 0
+        } else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 8) {
+            // if peanut hit the exit
+            advanceStory()
         }
         else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 2) {
             // if peanut hit a baddie
@@ -356,8 +365,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             self.removeAllChildren()
             self.removeAllActions()
-            
-            //need to add another line of code to make sure labels are gone?
             
             setupGame()
             
