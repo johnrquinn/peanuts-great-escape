@@ -31,11 +31,15 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     
     var gameOver = false
     
+    var needsStory = true
+    
     var gameOverLabel = SKLabelNode()
     
     var highScoreLabel = SKLabelNode()
     
     var scoreLabel = SKLabelNode()
+    
+    let moveLeft = SKAction.moveBy(x: -800, y:0, duration:6.0)
     
     enum ColliderType: UInt32 {
         
@@ -55,11 +59,22 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
+    func advanceStory() {
+        
+        let SceneMove = Dialogue(size: self.scene!.size)
+        SceneMove.scaleMode = SKSceneScaleMode.aspectFill
+        self.scene!.view!.presentScene(SceneMove)
+        
+     }
+    
     func setupGame() {
+        
+        self.removeAllActions()
+        self.removeAllChildren()
         
         lastUpdateTime = 0
         
-        score = 0
+        score = 15
         
         // SET UP THE BACKGROUND
         
@@ -99,7 +114,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         peanut = SKSpriteNode(texture: peanutTexture)
         
-        peanut.position = CGPoint(x: self.frame.midX, y: -300)
+        peanut.position = CGPoint(x: self.frame.midX, y: self.frame.midY - 300)
         
         peanut.run(makePeanutWalk)
         
@@ -129,7 +144,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         floor.physicsBody!.categoryBitMask = ColliderType.Object.rawValue
         floor.physicsBody!.contactTestBitMask = ColliderType.Peanut.rawValue
                 
-        floor.position = CGPoint(x: self.frame.midX, y: -530)
+        floor.position = CGPoint(x: self.frame.midX, y: self.frame.midY - 530)
         
         self.addChild(floor)
         
@@ -141,9 +156,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         scoreLabel.fontSize = 60
         
-        scoreLabel.text = "0"
+        scoreLabel.text = "Score: \(score)"
         
-        scoreLabel.position = CGPoint(x: self.frame.midX, y: self.frame.height / 2 - 70)
+        scoreLabel.position = CGPoint(x: self.frame.midX, y: self.frame.height - 70)
         
         self.addChild(scoreLabel)
         
@@ -158,7 +173,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         edge.physicsBody!.categoryBitMask = ColliderType.Edge.rawValue
         edge.physicsBody!.collisionBitMask = ColliderType.Edge.rawValue
         
-        edge.position = CGPoint(x: -435, y: self.frame.midY)
+        edge.position = CGPoint(x: self.frame.midX - 435, y: self.frame.midY)
         
         self.addChild(edge)
         
@@ -174,17 +189,17 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         goal.physicsBody!.collisionBitMask = 0
         goal.physicsBody!.contactTestBitMask = ColliderType.Baddie.rawValue
         
-        goal.position = CGPoint(x: -125, y: self.frame.midY)
+        goal.position = CGPoint(x: self.frame.midX - 125, y: self.frame.midY)
         
         self.addChild(goal)
         
-        // SPAWN BADDIES INFINITELY
+        // SPAWN BADDIES
         
         let wait = SKAction.wait(forDuration: 3, withRange: 3)
         
         let spawn = SKAction.run {
-            self.makeBaddie(at: CGPoint(x: 400, y: -349))
-        }
+        self.makeBaddie(at: CGPoint(x: self.frame.midX + 400, y: self.frame.midY - 349))
+            }
         
         let spawnBaddies = SKAction.sequence([wait, spawn])
         self.run(SKAction.repeatForever(spawnBaddies))
@@ -216,11 +231,34 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         addChild(baddie)
         
         // MOVE BADDIES LEFT
-        
-        let moveLeft = SKAction.moveBy(x: -800, y:0, duration:6.0) // TRY -- making baddies unaffected by gravity and setting collision bitmask to 0
+    
         baddie.run(moveLeft)
     
     }
+    
+    func makeExit(at position: CGPoint) {
+        
+        // THIS SEEMS TO SPAWN AN INVISIBLE EXIT... KNOWN BUG
+        
+        self.removeAllActions()
+        
+        let levelExit = SKSpriteNode()
+        
+        let levelExitTexture = SKTexture(imageNamed: "exitDoor.png")
+        
+        levelExit.physicsBody = SKPhysicsBody(circleOfRadius: levelExitTexture.size().height / 2)
+        
+        levelExit.physicsBody!.isDynamic = true
+        levelExit.physicsBody!.allowsRotation = false
+        levelExit.physicsBody!.affectedByGravity = false
+        
+        levelExit.position = CGPoint(x: self.frame.midX + 400, y: self.frame.midY - 349)
+        
+        addChild(levelExit)
+        levelExit.run(moveLeft)
+        
+    }
+    
     
     func didBegin(_ contact: SKPhysicsContact) {
         
@@ -238,9 +276,11 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         if (firstBody.categoryBitMask == 2 && secondBody.categoryBitMask == 30) {
             // if baddie hit goal
             score += 1
-            scoreLabel.text = String(score)
-            print("Baddie hit goal")
-            //goal.physicsBody!.categoryBitMask = ColliderType.Baddie.rawValue
+            scoreLabel.text = String("Score: \(score)")
+            if score >= 15 {
+                makeExit(at:CGPoint(x: self.frame.midX + 400, y: self.frame.midY - 349))
+            }
+            
         } else if (firstBody.categoryBitMask == 2 && secondBody.categoryBitMask == 31) {
             // if baddie hit left wall
             contact.bodyB.node?.removeFromParent()
@@ -266,8 +306,8 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
             gameOverLabel.text = "Game Over! Tap to play again."
             
-            gameOverLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY + 10)
-            highScoreLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY - 25)
+            gameOverLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY + 350)
+            highScoreLabel.position = CGPoint(x: self.frame.midX, y: self.frame.midY + 315)
             
             if score > highScore {
                 
@@ -280,8 +320,12 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             highScoreLabel.text = "High score is \(highScore). Try harder, loser!"
                 
             }
-            self.addChild(gameOverLabel)
-            self.addChild(highScoreLabel)
+            
+            if gameOverLabel.parent == nil && highScoreLabel.parent == nil{
+                self.addChild(gameOverLabel)
+                self.addChild(highScoreLabel)
+            } // Adding this to prevent the game from crashing when Peanut collides with a baddie.
+
         }
         
     }
@@ -311,6 +355,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             self.speed = 1
             
             self.removeAllChildren()
+            self.removeAllActions()
             
             //need to add another line of code to make sure labels are gone?
             
@@ -318,36 +363,5 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             
         }
         
-    }
-    
-    // I THINK EVERYTHING BELOW HERE IS TRASHABLE?    
-    
-    func touchDown(atPoint pos : CGPoint) {
-    }
-    
-    func touchMoved(toPoint pos : CGPoint) {
-        
-    }
-    
-    func touchUp(atPoint pos : CGPoint) {
-        
-    }
-    
-    override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchMoved(toPoint: t.location(in: self)) }
-    }
-    
-    override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-    
-    override func touchesCancelled(_ touches: Set<UITouch>, with event: UIEvent?) {
-        for t in touches { self.touchUp(atPoint: t.location(in: self)) }
-    }
-
-    
-    override func update(_ currentTime: TimeInterval) {
-        // Called before each frame is rendered
-
     }
 }
