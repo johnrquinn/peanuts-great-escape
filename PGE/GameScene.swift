@@ -126,9 +126,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         peanut.physicsBody!.categoryBitMask = ColliderType.Peanut.rawValue
         peanut.physicsBody!.collisionBitMask = ColliderType.Object.rawValue
-        peanut.physicsBody!.contactTestBitMask = ColliderType.Object.rawValue
-        peanut.physicsBody!.contactTestBitMask = ColliderType.Baddie.rawValue
-        peanut.physicsBody!.contactTestBitMask = ColliderType.Exit.rawValue
+        peanut.physicsBody!.contactTestBitMask = ColliderType.Baddie.rawValue | ColliderType.Object.rawValue | ColliderType.Exit.rawValue
         
         self.addChild(peanut)
         
@@ -142,7 +140,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         floor.physicsBody!.isDynamic = false
         
-        floor.physicsBody!.categoryBitMask = ColliderType.Peanut.rawValue
+        floor.physicsBody!.categoryBitMask = ColliderType.Object.rawValue
         floor.physicsBody!.categoryBitMask = ColliderType.Object.rawValue
         floor.physicsBody!.contactTestBitMask = ColliderType.Peanut.rawValue
                 
@@ -200,7 +198,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         let wait = SKAction.wait(forDuration: 3, withRange: 3)
         
         let spawn = SKAction.run {
-        self.makeBaddie(at: CGPoint(x: self.frame.midX + 400, y: self.frame.midY - 349))
+        self.makeBaddie(at: CGPoint(x: self.frame.midX + 400, y: self.frame.midY - 350))
             }
         
         let spawnBaddies = SKAction.sequence([wait, spawn])
@@ -226,8 +224,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
         baddie.physicsBody!.categoryBitMask = ColliderType.Baddie.rawValue
         baddie.physicsBody!.collisionBitMask = 0
-        baddie.physicsBody!.contactTestBitMask = ColliderType.Peanut.rawValue
-        baddie.physicsBody!.contactTestBitMask = ColliderType.Goal.rawValue
+        baddie.physicsBody!.contactTestBitMask = ColliderType.Peanut.rawValue | ColliderType.Goal.rawValue
         
         baddie.position = position
         addChild(baddie)
@@ -237,8 +234,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
     }
     
     func makeExit(at position: CGPoint) {
-        
-        // THIS SEEMS TO SPAWN AN INVISIBLE EXIT... KNOWN BUG -- but this does work for detecting contact
         
         self.removeAllActions()
         
@@ -265,11 +260,10 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         
     }
     
-    
     func didBegin(_ contact: SKPhysicsContact) {
         
-        var firstBody : SKPhysicsBody
-        var secondBody : SKPhysicsBody
+        var firstBody: SKPhysicsBody
+        var secondBody: SKPhysicsBody
         
         if contact.bodyA.categoryBitMask < contact.bodyB.categoryBitMask {
             firstBody = contact.bodyA
@@ -279,6 +273,9 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             secondBody = contact.bodyA
         }
         
+        print(firstBody)
+        print(secondBody)
+        
         if (firstBody.categoryBitMask == 2 && secondBody.categoryBitMask == 30) {
             // if baddie hit goal
             score += 1
@@ -286,7 +283,6 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
             if score == 15 {
                 makeExit(at:CGPoint(x: self.frame.midX + 400, y: self.frame.midY - 349))
             }
-            
         } else if (firstBody.categoryBitMask == 2 && secondBody.categoryBitMask == 31) {
             // if baddie hit left wall
             contact.bodyB.node?.removeFromParent()
@@ -296,8 +292,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
         } else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 8) {
             // if peanut hit the exit
             advanceStory()
-        }
-        else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 2) {
+        } else if (firstBody.categoryBitMask == 1 && secondBody.categoryBitMask == 2) {
             // if peanut hit a baddie
             self.speed = 0
             
@@ -334,7 +329,7 @@ class GameScene: SKScene, SKPhysicsContactDelegate {
                 self.addChild(gameOverLabel)
                 self.addChild(highScoreLabel)
             } // Adding this to prevent the game from crashing when Peanut collides with a baddie.
-
+ 
         }
         
     }
